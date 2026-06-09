@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B C A APEX 2026</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-black: #0B0B0B;
+            --brand-gold: #D4AF37;
+            --brand-blue: #00CFFF;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.35);
+        }
+        
+        body { 
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--brand-black);
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(212, 175, 55, 0.12) 0, transparent 25%),
+                radial-gradient(at 50% 0%, rgba(0, 207, 255, 0.12) 0, transparent 25%),
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 1.5rem;
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .glass-btn {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5);
+        }
+        .glass-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-blue) 100%);
+            border: none;
+            box-shadow: 0 10px 30px -5px rgba(212, 175, 55, 0.45);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .primary-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+        .primary-btn:hover:not(:disabled) {
+            box-shadow: 0 18px 35px -10px rgba(212, 175, 55, 0.6);
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        .primary-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        .demo-card-badge {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(212, 175, 55, 0.95);
+            color: #000;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .demo-card-actions a:hover {
+            background: rgba(0, 207, 255, 0.15);
+            border-color: rgba(0, 207, 255, 0.35);
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: var(--brand-gold);
+        }
+
+        /* Canvas Area */
+        .workspace-container {
+            position: relative;
+            width: 100%;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            touch-action: none; /* Crucial for custom touch handling */
+        }
+
+        .checkerboard {
+            background-color: #1e293b;
+            background-image: 
+                linear-gradient(45deg, #0f172a 25%, transparent 25%, transparent 75%, #0f172a 75%, #0f172a), 
+                linear-gradient(45deg, #0f172a 25%, transparent 25%, transparent 75%, #0f172a 75%, #0f172a);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        #userImageLayer {
+            position: absolute;
+            transform-origin: center center;
+            will-change: transform;
+            cursor: grab;
+            -webkit-user-select: none;
+            user-select: none;
+            max-width: none !important;
+            max-height: none !important;
+        }
+        #userImageLayer:active {
+            cursor: grabbing;
+        }
+
+        #frameLayer {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.5));
+            border-radius: 3px;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.7), rgba(168, 85, 247, 0.7));
+        }
+
+        /* Toast Animation */
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.9); }
+            100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+        .toast-enter {
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Before/After Slider */
+        .comparison-slider {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            overflow: hidden;
+            z-index: 50;
+            display: none;
+        }
+        .comparison-slider.active {
+            display: block;
+        }
+        .comparison-before {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+            background-color: #000;
+            clip-path: inset(0 50% 0 0);
+        }
+        .comparison-before img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+        }
+        .comparison-after {
+            position: absolute;
+            top: 0; bottom: 0; left: 0; right: 0;
+        }
+        .comparison-after img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 0; bottom: 0; left: 50%;
+            width: 4px;
+            background: linear-gradient(to bottom, #6366f1, #a855f7);
+            cursor: ew-resize;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.3s ease;
+        }
+        .slider-handle:hover {
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.8);
+        }
+        .slider-btn {
+            width: 32px; height: 32px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            color: #0f172a;
+        }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: var(--brand-gold);
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: var(--brand-gold);
+        }
+
+        /* Ambient Background Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: floatOrb 20s infinite alternate;
+            pointer-events: none;
+        }
+        .orb-1 { width: 500px; height: 500px; background: rgba(99, 102, 241, 0.2); top: -150px; left: -150px; animation-duration: 25s; }
+        .orb-2 { width: 600px; height: 600px; background: rgba(168, 85, 247, 0.15); bottom: -200px; right: -150px; animation-duration: 30s; animation-delay: -5s; }
+        .orb-3 { width: 400px; height: 400px; background: rgba(236, 72, 153, 0.15); top: 30%; left: 40%; animation-duration: 22s; animation-delay: -10s; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 40px) scale(1.1); }
+            100% { transform: translate(-40px, 80px) scale(0.9); }
+        }
+
+        /* Text Shimmer */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .text-shimmer {
+            background: linear-gradient(to right, #ffffff 20%, #818cf8 40%, #c084fc 60%, #ffffff 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        /* Workspace Glow Border */
+        .glow-wrap {
+            position: relative;
+            border-radius: 1.5rem;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+            transition: box-shadow 0.5s ease, transform 0.3s ease;
+        }
+        .glow-wrap:hover {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Drag and Drop Active State */
+        .workspace-container.drag-active {
+            box-shadow: inset 0 0 50px rgba(168, 85, 247, 0.4) !important;
+            border: 2px dashed rgba(168, 85, 247, 0.8);
+        }
+        .workspace-container.drag-active #uploadPrompt {
+            background-color: rgba(168, 85, 247, 0.1);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+
+        .demo-gallery {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+        .demo-gallery::-webkit-scrollbar {
+            height: 10px;
+        }
+        .demo-gallery::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 9999px;
+        }
+        .gallery-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(11, 11, 11, 0.85);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+            z-index: 20;
+        }
+        .gallery-nav-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            background: rgba(212, 175, 55, 0.95);
+            color: #0B0B0B;
+        }
+        .gallery-nav-btn.left-2 {
+            left: 0.75rem;
+        }
+        .gallery-nav-btn.right-2 {
+            right: 0.75rem;
+        }
+        .demo-card {
+            min-width: 252px;
+            max-width: 252px;
+            flex-shrink: 0;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(15, 23, 42, 0.92);
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.35);
+            overflow: hidden;
+            scroll-snap-align: start;
+        }
+        .demo-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+        .demo-card-content {
+            padding: 1rem;
+        }
+        .demo-card-actions a {
+            display: inline-flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 0.9rem;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .demo-card-actions a:hover {
+            background: rgba(0, 207, 255, 0.15);
+            border-color: rgba(0, 207, 255, 0.35);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center py-8 relative">
+    
+    <!-- Ambient Orbs -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <div class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 px-4 z-10">
+
+        <!-- Top Brand Hero -->
+        <div class="lg:col-span-12 glass-panel p-6 space-y-6">
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-center">
+                                   </div>
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 sm:p-5">
+                    <div class="space-y-2">
+                        <p class="text-xs uppercase tracking-[0.35em] text-[#D4AF37]/90 font-semibold">BCA Apex 2026</p>
+                        <p class="text-[10px] uppercase tracking-[0.45em] text-slate-400 mt-2">Apex Mean | the highest point. The batch that reached peak potential.</p>
+                    </div>
+                    <button id="btnDownloadAllDemo" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.08)] px-5 py-3 text-sm font-semibold text-[#D4AF37] transition hover:border-[#00CFFF] hover:bg-[rgba(0,207,255,0.15)]">Download All</button>
+                </div>
+                <div class="relative">
+                    <div id="demoGallery" class="demo-gallery flex gap-4 overflow-x-auto pb-2 pt-1"></div>
+                    <button id="btnDemoPrev" class="gallery-nav-btn left-2" aria-label="Scroll left">&#x276E;</button>
+                    <button id="btnDemoNext" class="gallery-nav-btn right-2" aria-label="Scroll right">&#x276F;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Left Side: Canvas / Frame Area -->
+        <div class="lg:col-span-7 flex flex-col justify-center relative">
+            
+            <div class="glass-panel p-4 flex flex-col items-center">
+                <!-- Main Workspace Container -->
+                <div class="glow-wrap w-full">
+                    <div id="workspace" class="workspace-container checkerboard transition-all duration-300 relative group">
+                    
+                    <!-- Upload Prompt -->
+                    <div id="uploadPrompt" class="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-colors">
+                        <div class="floating w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-4 border border-white/20 shadow-lg group-hover:scale-110 transition-transform">
+                            <svg class="w-10 h-10 text-[#00CFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-shimmer">Upload Your Photo</h3>
+                        <p class="text-sm text-slate-400 mt-2 font-light">Drag & drop or click to browse</p>
+                        <p class="text-xs text-slate-500 mt-1">High-res JPG/PNG up to 10MB</p>
+                    </div>
+
+                    <!-- Loader Overlay -->
+                    <div id="loaderOverlay" class="absolute inset-0 z-30 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
+                        <div class="w-12 h-12 border-4 border-[rgba(0,207,255,0.25)] border-t-[rgba(0,207,255,0.8)] rounded-full animate-spin mb-4"></div>
+                        <p id="loaderText" class="text-[#00CFFF] font-medium">Processing Image...</p>
+                    </div>
+
+                    <!-- Layers -->
+                    <img id="bgBlurLayer" class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-0 transition-opacity z-0" alt="">
+                    
+                    <div id="imageContainer" class="absolute inset-0 z-0 overflow-hidden hidden">
+                        <img id="userImageLayer" alt="User upload">
+                    </div>
+                    
+                    <img id="frameLayer" src="1.png" alt="Frame" crossorigin="anonymous">
+                </div>
+
+                    </div> <!-- End glow-wrap -->
+
+                <!-- Action Bar beneath workspace -->
+                <div class="w-full flex justify-between items-center mt-4">
+                    <button id="btnBeforeAfter" class="glass-btn px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 hidden">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        Compare
+                    </button>
+                    <div class="flex gap-2 ml-auto">
+                        <button id="btnReset" class="glass-btn px-4 py-2 rounded-xl text-sm font-medium hidden">Reset</button>
+                        <button id="btnUploadNew" class="glass-btn px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Change Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Before/After Slider Overlay -->
+            <div id="comparisonSlider" class="comparison-slider glass-panel">
+                <div class="comparison-after">
+                    <img id="compareAfterImg" alt="After">
+                </div>
+                <div class="comparison-before" id="compareBefore">
+                    <img id="compareBeforeImg" alt="Before">
+                </div>
+                <div class="slider-handle" id="sliderHandle">
+                    <div class="slider-btn">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
+                    </div>
+                </div>
+                <button id="btnCloseCompare" class="absolute top-4 right-4 glass-btn w-10 h-10 rounded-full flex items-center justify-center z-50">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <input type="file" id="fileInput" class="hidden" accept="image/jpeg, image/png, image/webp" aria-label="Upload photo" title="Upload photo">
+            <canvas id="exportCanvas" class="hidden"></canvas>
+        </div>
+
+        <!-- Right Side: Advanced Controls -->
+        <div class="lg:col-span-5 flex flex-col space-y-6">
+            
+            <div class="mb-2 space-y-3">
+                <div class="inline-flex items-center gap-3">
+                    
+                </div>
+                
+                    <div class="space-y-3">
+                    <label class="text-sm font-medium text-indigo-300 uppercase tracking-wider">Select Frame</label>
+                    <select id="frameSelect" class="w-full glass-input py-3 px-4 rounded-xl cursor-pointer" aria-label="Select frame" title="Select frame">
+                        <option value="1.png" class="bg-slate-800">Frame 1: Classic Elite</option>
+                        <option value="2.png" class="bg-slate-800">Frame 2: Modern Edge</option>
+                        <option value="3.png" class="bg-slate-800">Frame 3: Premium Graduation</option>
+                        <option value="4.png" class="bg-slate-800">Frame 4: Academic Honor</option>
+                        <option value="5.png" class="bg-slate-800">Frame 5: Distinguished Scholar</option>
+                        <option value="6.png" class="bg-slate-800">Frame 6: Elite Recognition</option>
+                            </select>
+                </div>
+
+                <!-- Controls Group -->
+                <div id="controlsPanel" class="space-y-6 opacity-50 pointer-events-none transition-opacity duration-300">
+                    
+                    <!-- Zoom & Rotate -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm text-slate-300">Zoom</label>
+                                <span id="valZoom" class="text-xs text-indigo-300 font-mono">1.0x</span>
+                            </div>
+                            <input type="range" id="sliderZoom" min="0.1" max="5" step="0.01" value="1" aria-label="Zoom control" title="Zoom control">
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm text-slate-300">Rotate</label>
+                                <span id="valRotate" class="text-xs text-indigo-300 font-mono">0°</span>
+                            </div>
+                            <input type="range" id="sliderRotate" min="-180" max="180" step="1" value="0" aria-label="Rotate photo" title="Rotate photo">
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <!-- Brightness & Contrast -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm text-slate-300">Brightness</label>
+                                <span id="valBright" class="text-xs text-indigo-300 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="sliderBright" min="50" max="150" step="1" value="100" aria-label="Brightness control" title="Brightness control">
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="text-sm text-slate-300">Contrast</label>
+                                <span id="valContrast" class="text-xs text-indigo-300 font-mono">100%</span>
+                            </div>
+                            <input type="range" id="sliderContrast" min="50" max="150" step="1" value="100" aria-label="Contrast control" title="Contrast control">
+                        </div>
+                    </div>
+
+                    <hr class="border-white/10">
+
+                    <!-- Background Blur Toggle -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="text-sm text-slate-300 font-medium">Smart Background Fill</span>
+                            <span class="text-xs text-slate-500">Fills empty space with blurred image</span>
+                        </div>
+                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" id="toggleBlur" name="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all duration-300" checked aria-label="Toggle background blur" title="Toggle background blur"/>
+                            <label for="toggleBlur" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-600 cursor-pointer transition-colors duration-300"></label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Export Section -->
+            <div class="glass-panel p-6 space-y-4">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm font-medium text-indigo-300 uppercase tracking-wider">Export Quality</label>
+                    <select id="exportRes" class="glass-input py-1 px-2 rounded-lg text-sm bg-transparent cursor-pointer" aria-label="Select export quality" title="Select export quality">
+                        <option value="perfect" class="bg-slate-800">Perfect (1:1 Photo)</option>
+                        <option value="original" class="bg-slate-800" selected>Original Frame Size</option>
+                        <option value="2048" class="bg-slate-800">2K (High)</option>
+                        <option value="3840" class="bg-slate-800">4K (Ultra)</option>
+                    </select>
+                </div>
+                
+                <div class="flex gap-3">
+                    <select id="exportFormat" class="glass-input py-3 px-4 rounded-xl flex-1 cursor-pointer" aria-label="Select export format" title="Select export format">
+                        <option value="image/png" class="bg-slate-800">PNG (Lossless)</option>
+                        <option value="image/jpeg" class="bg-slate-800">JPG (Compressed)</option>
+                    </select>
+                    <button id="btnExport" class="primary-btn text-white font-semibold py-3 px-8 rounded-xl flex-[2] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span>Export Frame</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        /**
+         * Core Configuration & State
+         */
+        // Exact inner window mapping per frame (rough approximations adapted for robustness)
+        // Values are percentages (0-1) of the total frame width/height
+        const frameConfigs = {
+            "1.png": { top: 0.2025, left: 0.2314, width: 0.5322, height: 0.6183 },
+            "2.png": { top: 0.2361, left: 0.2470, width: 0.5514, height: 0.4908 },
+            "3.png": { top: 0.1834, left: 0.2935, width: 0.4187, height: 0.6268 },
+            "4.png": { top: 0.2241, left: 0.2624, width: 0.5590, height: 0.5447 },
+            "5.png": { top: 0.2241, left: 0.2289, width: 0.6499, height: 0.5574 },
+            "6.png": { top: 0.2574, left: 0.2480, width: 0.5195, height: 0.4995 }
+        };
+
+        const state = {
+            hasImage: false,
+            scale: 1,
+            x: 0, // Translation X from center
+            y: 0, // Translation Y from center
+            rotation: 0,
+            brightness: 100,
+            contrast: 100,
+            useBlur: true,
+            imgNaturalWidth: 0,
+            imgNaturalHeight: 0,
+            currentFrame: "1.png",
+            faceApiLoaded: false,
+            isDragging: false,
+            lastX: 0,
+            lastY: 0,
+            velocityX: 0,
+            velocityY: 0,
+            lastTime: 0,
+            rafId: null
+        };
+
+        const demoImages = [
+            { id: 1, file: '1.jpeg' },
+            { id: 2, file: '2.jpeg' },
+            { id: 3, file: '3.png' },
+            { id: 4, file: '4.jpg' },
+            { id: 5, file: '5.jpg' },
+            { id: 6, file: '6.jpg' },
+            { id: 7, file: '7.jpeg' },
+            { id: 8, file: '8.jpg' },
+            { id: 9, file: '9.jpg' },
+            { id: 10, file: '10.jpg' },
+            { id: 11, file: '11.jpg' },
+            { id: 12, file: '12.jpg' },
+            { id: 13, file: '13.jpg' },
+            { id: 14, file: '14.jpg' },
+            { id: 15, file: '15.png' },
+            { id: 16, file: '16.jpg' },
+            { id: 17, file: '17.jpg' }
+        ];
+
+        /**
+         * DOM Elements
+         */
+        const els = {
+            workspace: document.getElementById('workspace'),
+            uploadPrompt: document.getElementById('uploadPrompt'),
+            imageContainer: document.getElementById('imageContainer'),
+            userImg: document.getElementById('userImageLayer'),
+            bgBlur: document.getElementById('bgBlurLayer'),
+            frameLayer: document.getElementById('frameLayer'),
+            fileInput: document.getElementById('fileInput'),
+            controlsPanel: document.getElementById('controlsPanel'),
+            
+            // Buttons
+            btnUploadNew: document.getElementById('btnUploadNew'),
+            btnReset: document.getElementById('btnReset'),
+            btnExport: document.getElementById('btnExport'),
+            btnBeforeAfter: document.getElementById('btnBeforeAfter'),
+            btnDownloadAllDemo: document.getElementById('btnDownloadAllDemo'),
+            btnDemoPrev: document.getElementById('btnDemoPrev'),
+            btnDemoNext: document.getElementById('btnDemoNext'),
+            demoGallery: document.getElementById('demoGallery'),
+            
+            // Sliders & Inputs
+            sZoom: document.getElementById('sliderZoom'),
+            vZoom: document.getElementById('valZoom'),
+            sRot: document.getElementById('sliderRotate'),
+            vRot: document.getElementById('valRotate'),
+            sBri: document.getElementById('sliderBright'),
+            vBri: document.getElementById('valBright'),
+            sCon: document.getElementById('sliderContrast'),
+            vCon: document.getElementById('valContrast'),
+            tBlur: document.getElementById('toggleBlur'),
+            fSelect: document.getElementById('frameSelect'),
+            eRes: document.getElementById('exportRes'),
+            eFmt: document.getElementById('exportFormat'),
+            
+            // Loader
+            loader: document.getElementById('loaderOverlay'),
+            loaderText: document.getElementById('loaderText'),
+            
+            // Compare Modal
+            compSlider: document.getElementById('comparisonSlider'),
+            compBefore: document.getElementById('compareBefore'),
+            imgBefore: document.getElementById('compareBeforeImg'),
+            imgAfter: document.getElementById('compareAfterImg'),
+            sliderHandle: document.getElementById('sliderHandle'),
+            btnCloseComp: document.getElementById('btnCloseCompare')
+        };
+
+        /**
+         * Initialization
+         */
+        async function init() {
+            setupEventListeners();
+            renderDemoGallery();
+            loadFaceAPI();
+        }
+
+        function renderDemoGallery() {
+            if (!els.demoGallery) return;
+            els.demoGallery.innerHTML = demoImages.map(image => {
+                const imageSrc = encodeURI(`Demo img/${image.file}`);
+                return `
+                    <div class="demo-card relative">
+                        <span class="demo-card-badge">${image.id}</span>
+                        <img src="${imageSrc}" alt="Demo ${image.id}">
+                        <div class="demo-card-content">
+                            
+                            <div class="demo-card-actions flex flex-col gap-2">
+                                <a href="${imageSrc}" target="_blank" rel="noreferrer" class="text-slate-200">Preview</a>
+                                <a href="${imageSrc}" download="demo-${image.id}" class="text-slate-200">Download</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function downloadAllDemoImages() {
+            demoImages.forEach(image => {
+                const imageSrc = encodeURI(`Demo img/${image.file}`);
+                const anchor = document.createElement('a');
+                anchor.href = imageSrc;
+                anchor.download = `demo-${image.id}`;
+                anchor.style.display = 'none';
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+            });
+            showToast('Downloading all demo images... please allow multiple downloads in your browser.', 'success');
+        }
+
+        async function loadFaceAPI() {
+            try {
+                // Load tiny face detector model from reliable CDN
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://vladmandic.github.io/face-api/model/');
+                state.faceApiLoaded = true;
+                console.log("Face API loaded successfully");
+            } catch (e) {
+                console.warn("Could not load Face API", e);
+                showToast("Auto-face detection disabled (Model load failed)", "warning");
+            }
+        }
+
+        /**
+         * Event Listeners
+         */
+        function setupEventListeners() {
+            // Upload triggers
+            els.uploadPrompt.addEventListener('click', () => els.fileInput.click());
+            els.btnUploadNew.addEventListener('click', () => els.fileInput.click());
+            
+            els.fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+
+            // Drag & Drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+                els.workspace.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+            });
+            els.workspace.addEventListener('dragover', () => {
+                els.workspace.classList.add('drag-active');
+                els.uploadPrompt.classList.add('bg-white/10');
+            });
+            els.workspace.addEventListener('dragleave', () => {
+                els.workspace.classList.remove('drag-active');
+                els.uploadPrompt.classList.remove('bg-white/10');
+            });
+            els.workspace.addEventListener('drop', (e) => {
+                els.workspace.classList.remove('drag-active');
+                els.uploadPrompt.classList.remove('bg-white/10');
+                if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            });
+
+            // Frame Change
+            els.fSelect.addEventListener('change', (e) => {
+                state.currentFrame = e.target.value;
+                els.frameLayer.src = state.currentFrame;
+                els.frameLayer.onload = () => {
+                    if (state.hasImage) {
+                        autoFitImage(); // Refit based on new frame config
+                    }
+                };
+            });
+
+            els.frameLayer.addEventListener('error', () => {
+                showToast('Failed to load selected frame image.', 'error');
+            });
+
+            // Controls
+            els.sZoom.addEventListener('input', (e) => updateState('scale', parseFloat(e.target.value)));
+            els.sRot.addEventListener('input', (e) => updateState('rotation', parseInt(e.target.value)));
+            els.sBri.addEventListener('input', (e) => updateState('brightness', parseInt(e.target.value)));
+            els.sCon.addEventListener('input', (e) => updateState('contrast', parseInt(e.target.value)));
+            els.tBlur.addEventListener('change', (e) => {
+                state.useBlur = e.target.checked;
+                els.bgBlur.style.opacity = state.useBlur && state.hasImage ? '1' : '0';
+            });
+
+            els.btnReset.addEventListener('click', () => {
+                if (state.hasImage) autoFitImage();
+            });
+
+            els.btnExport.addEventListener('click', exportImage);
+            if (els.btnDownloadAllDemo) {
+                els.btnDownloadAllDemo.addEventListener('click', downloadAllDemoImages);
+            }
+            if (els.btnDemoPrev) {
+                els.btnDemoPrev.addEventListener('click', () => scrollDemoGallery(-1));
+            }
+            if (els.btnDemoNext) {
+                els.btnDemoNext.addEventListener('click', () => scrollDemoGallery(1));
+            }
+
+            // Interaction (Drag / Touch)
+            setupInteraction();
+            setupCompareSlider();
+        }
+
+        /**
+         * Interaction Handling (Momentum, Boundary)
+         */
+        function setupInteraction() {
+            const el = els.workspace;
+            
+            // Mouse
+            el.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', drag);
+            window.addEventListener('mouseup', endDrag);
+
+            // Touch
+            el.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) startDrag(e.touches[0]);
+                else if (e.touches.length === 2) startPinch(e);
+            }, {passive: false});
+            
+            window.addEventListener('touchmove', (e) => {
+                if (state.isDragging && e.touches.length === 1) {
+                    e.preventDefault();
+                    drag(e.touches[0]);
+                } else if (isPinching && e.touches.length === 2) {
+                    e.preventDefault();
+                    doPinch(e);
+                }
+            }, {passive: false});
+            
+            window.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) {
+                    endDrag();
+                    isPinching = false;
+                }
+            });
+
+            // Double click reset
+            el.addEventListener('dblclick', () => {
+                if (state.hasImage) autoFitImage();
+            });
+            
+            // Wheel zoom
+            el.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (!state.hasImage) return;
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                let newScale = Math.max(0.01, Math.min(10, state.scale * zoomFactor));
+                updateState('scale', newScale);
+            }, {passive: false});
+        }
+
+        let isPinching = false;
+        let initialPinchDist = 0;
+        let initialScale = 1;
+
+        function startPinch(e) {
+            isPinching = true;
+            state.isDragging = false;
+            initialPinchDist = getPinchDist(e);
+            initialScale = state.scale;
+            cancelAnimationFrame(state.rafId);
+        }
+
+        function doPinch(e) {
+            if (!isPinching) return;
+            const dist = getPinchDist(e);
+            const scaleChange = dist / initialPinchDist;
+            let newScale = Math.max(0.01, Math.min(10, initialScale * scaleChange));
+            updateState('scale', newScale);
+        }
+
+        function getPinchDist(e) {
+            return Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+
+        function startDrag(e) {
+            if (!state.hasImage) return;
+            // Ignore if clicking on UI controls
+            if (e.target.closest && (e.target.closest('button') || e.target.closest('input'))) return;
+            
+            state.isDragging = true;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            state.lastTime = performance.now();
+            state.velocityX = 0;
+            state.velocityY = 0;
+            cancelAnimationFrame(state.rafId);
+        }
+
+        function drag(e) {
+            if (!state.isDragging) return;
+            
+            const dx = e.clientX - state.lastX;
+            const dy = e.clientY - state.lastY;
+            const now = performance.now();
+            const dt = now - state.lastTime;
+            
+            if (dt > 0) {
+                state.velocityX = dx / dt;
+                state.velocityY = dy / dt;
+            }
+            
+            state.x += dx;
+            state.y += dy;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            state.lastTime = now;
+            
+            applyBoundaryLock();
+            applyDOMTransforms();
+        }
+
+        function endDrag() {
+            if (!state.isDragging) return;
+            state.isDragging = false;
+            
+            // Momentum
+            let ampX = state.velocityX * 15;
+            let ampY = state.velocityY * 15;
+            let targetX = state.x + ampX;
+            let targetY = state.y + ampY;
+            
+            const decay = 0.90;
+            
+            function step() {
+                ampX *= decay;
+                ampY *= decay;
+                state.x += ampX;
+                state.y += ampY;
+                
+                applyBoundaryLock();
+                applyDOMTransforms();
+                
+                if (Math.abs(ampX) > 0.5 || Math.abs(ampY) > 0.5) {
+                    state.rafId = requestAnimationFrame(step);
+                }
+            }
+            state.rafId = requestAnimationFrame(step);
+        }
+
+        function applyBoundaryLock() {
+            const rect = els.workspace.getBoundingClientRect();
+            
+            // Allow the user to drag the image anywhere.
+            // We only apply a massive generic clamp so they don't lose the image in infinity.
+            const limitX = rect.width * 5;
+            const limitY = rect.height * 5;
+            
+            state.x = Math.max(-limitX, Math.min(limitX, state.x));
+            state.y = Math.max(-limitY, Math.min(limitY, state.y));
+        }
+
+        /**
+         * State Management & UI Updates
+         */
+        function updateState(key, val) {
+            state[key] = val;
+            
+            // Sync UI
+            if (key === 'scale') {
+                els.sZoom.value = val;
+                els.vZoom.textContent = val.toFixed(2) + 'x';
+            }
+            if (key === 'rotation') {
+                els.sRot.value = val;
+                els.vRot.textContent = val + '°';
+            }
+            if (key === 'brightness') {
+                els.sBri.value = val;
+                els.vBri.textContent = val + '%';
+            }
+            if (key === 'contrast') {
+                els.sCon.value = val;
+                els.vCon.textContent = val + '%';
+            }
+            
+            applyBoundaryLock();
+            applyDOMTransforms();
+        }
+
+        function applyDOMTransforms() {
+            // Position userImg absolute center, then apply transforms
+            els.userImg.style.transform = `
+                translate(calc(-50% + ${state.x}px), calc(-50% + ${state.y}px)) 
+                scale(${state.scale}) 
+                rotate(${state.rotation}deg)
+            `;
+            els.userImg.style.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%)`;
+        }
+
+        /**
+         * File Handling
+         */
+        async function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showToast('Invalid file format. Please upload JPG or PNG.', 'error');
+                return;
+            }
+
+            showLoader('Analyzing image...');
+            
+            try {
+                const url = URL.createObjectURL(file);
+                
+                // Load into a temporary image to get dimensions
+                const img = new Image();
+                img.onload = async () => {
+                    state.imgNaturalWidth = img.naturalWidth;
+                    state.imgNaturalHeight = img.naturalHeight;
+                    
+                    // Setup DOM
+                    els.userImg.src = url;
+                    els.bgBlur.src = url;
+                    els.userImg.style.width = `${img.naturalWidth}px`;
+                    els.userImg.style.height = `${img.naturalHeight}px`;
+                    // Center absolutely
+                    els.userImg.style.left = '50%';
+                    els.userImg.style.top = '50%';
+                    
+                    state.hasImage = true;
+                    
+                    // UI transitions
+                    els.uploadPrompt.classList.add('hidden');
+                    els.imageContainer.classList.remove('hidden');
+                    if(state.useBlur) els.bgBlur.style.opacity = '1';
+                    els.controlsPanel.classList.remove('opacity-50', 'pointer-events-none');
+                    els.btnReset.classList.remove('hidden');
+                    els.btnBeforeAfter.classList.remove('hidden');
+                    
+                    // Reset State
+                    state.rotation = 0;
+                    state.brightness = 100;
+                    state.contrast = 100;
+                    updateState('rotation', 0);
+                    updateState('brightness', 100);
+                    updateState('contrast', 100);
+
+                    // Perform AI Face detection if available
+                    let faceBox = null;
+                    if (state.faceApiLoaded) {
+                        showLoader('Detecting faces...');
+                        try {
+                            const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions());
+                            if (detection) {
+                                faceBox = detection.box;
+                                showToast('Face auto-aligned!', 'success');
+                            }
+                        } catch(e) { console.warn("Detection error", e); }
+                    }
+                    
+                    autoFitImage(faceBox);
+                    hideLoader();
+                };
+                img.onerror = () => {
+                    hideLoader();
+                    showToast('Failed to load image.', 'error');
+                };
+                img.src = url;
+                
+            } catch (err) {
+                hideLoader();
+                showToast('Error processing file.', 'error');
+            }
+        }
+
+        function autoFitImage(faceBox = null) {
+            const rect = els.workspace.getBoundingClientRect();
+            const conf = frameConfigs[state.currentFrame] || {top:0, left:0, width:1, height:1};
+            
+            const innerW = conf.width * rect.width;
+            const innerH = conf.height * rect.height;
+            
+            let scaleX = innerW / state.imgNaturalWidth;
+            let scaleY = innerH / state.imgNaturalHeight;
+            
+            let scale = Math.max(scaleX, scaleY);
+
+            // Smart Zoom on Face
+            if (faceBox) {
+                const faceRatio = faceBox.height / state.imgNaturalHeight;
+                if (faceRatio < 0.25) {
+                    scale *= 1.4; // zoom more if face is small
+                } else if (faceRatio > 0.5) {
+                    scale *= 0.9; // zoom out if too big
+                }
+            }
+
+            state.scale = scale;
+            
+            // Dynamically adjust slider
+            els.sZoom.min = (scale * 0.1).toFixed(4); 
+            els.sZoom.max = (scale * 10).toFixed(4);  
+            els.sZoom.step = (scale * 0.01).toFixed(4); 
+
+            if (faceBox) {
+                // Face center in image
+                const faceCX = faceBox.x + faceBox.width / 2;
+                const faceCY = faceBox.y + faceBox.height / 2;
+
+                // Frame center
+                const frameCX = (conf.left + conf.width / 2) * rect.width;
+                const frameCY = (conf.top + conf.height / 2) * rect.height;
+
+                const workspaceCX = rect.width / 2;
+                const workspaceCY = rect.height / 2;
+
+                state.x = (frameCX - workspaceCX) - (faceCX - state.imgNaturalWidth / 2) * scale;
+                state.y = (frameCY - workspaceCY) - (faceCY - state.imgNaturalHeight / 2) * scale;
+            } else {
+                state.x = 0;
+                state.y = 0;
+            }
+
+            updateState('scale', state.scale);
+            updateState('x', state.x);
+            updateState('y', state.y);
+            applyDOMTransforms();
+        }
+
+        /**
+         * Export Engine (Matrix Based)
+         */
+        async function exportImage() {
+            if (!state.hasImage) return;
+            
+            els.btnExport.disabled = true;
+            showLoader('Generating high-res export...');
+            
+            try {
+                // Allow UI to update
+                await new Promise(r => setTimeout(r, 50));
+                
+                const canvas = document.getElementById('exportCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                const resChoiceStr = els.eRes.value;
+                const format = els.eFmt.value;
+                const ext = format === 'image/jpeg' ? 'jpg' : 'png';
+                
+                // The frame image determines natural aspect ratio
+                const frameImg = els.frameLayer;
+                const frameNatW = frameImg.naturalWidth || 2000;
+                const frameNatH = frameImg.naturalHeight || 2500;
+                const aspect = frameNatW / frameNatH;
+                
+                let exportW = frameNatW;
+                let exportH = frameNatH;
+                
+                if (resChoiceStr === 'perfect') {
+                    // We calculate the exact canvas size needed so the user's photo is drawn at 100% original scale
+                    const workspaceRect = els.workspace.getBoundingClientRect();
+                    exportW = workspaceRect.width / state.scale;
+                    exportH = exportW / aspect;
+                    
+                    // Cap at 8000px to prevent browser memory crash
+                    if (exportW > 8000 || exportH > 8000) {
+                        const downscale = Math.min(8000 / exportW, 8000 / exportH);
+                        exportW *= downscale;
+                        exportH *= downscale;
+                    }
+                } else if (resChoiceStr !== 'original') {
+                    const resChoice = parseInt(resChoiceStr);
+                    exportW = resChoice;
+                    exportH = resChoice / aspect;
+                    
+                    // If portrait, width should be scaled down based on height = resChoice
+                    if (aspect < 1) {
+                        exportH = resChoice;
+                        exportW = resChoice * aspect;
+                    }
+                }
+                
+                canvas.width = exportW;
+                canvas.height = exportH;
+                
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // Render Background Blur Layer
+                if (state.useBlur) {
+                    ctx.save();
+                    ctx.filter = `blur(${exportW * 0.05}px) brightness(0.8)`;
+                    // Scale background to cover
+                    const bgScale = Math.max(exportW / state.imgNaturalWidth, exportH / state.imgNaturalHeight);
+                    const bgW = state.imgNaturalWidth * bgScale;
+                    const bgH = state.imgNaturalHeight * bgScale;
+                    ctx.drawImage(els.userImg, exportW/2 - bgW/2, exportH/2 - bgH/2, bgW, bgH);
+                    ctx.restore();
+                } else if (format === 'image/jpeg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, exportW, exportH);
+                }
+
+                // Mathematical Mapping from DOM to Canvas
+                const workspaceRect = els.workspace.getBoundingClientRect();
+                const scaleToCanvas = exportW / workspaceRect.width;
+                
+                // Transform matrix for user image
+                ctx.save();
+                
+                // Move to center of canvas (which corresponds to absolute 50% 50% in DOM)
+                ctx.translate(exportW / 2, exportH / 2);
+                
+                // Apply panning mapping
+                ctx.translate(state.x * scaleToCanvas, state.y * scaleToCanvas);
+                
+                // Apply rotation
+                ctx.rotate(state.rotation * Math.PI / 180);
+                
+                // Apply scaling
+                const finalScale = state.scale * scaleToCanvas;
+                ctx.scale(finalScale, finalScale);
+                
+                // Apply Filters with saturation boost for premium look
+                ctx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(110%)`;
+                
+                // Draw centered
+                ctx.drawImage(
+                    els.userImg, 
+                    -state.imgNaturalWidth / 2, 
+                    -state.imgNaturalHeight / 2, 
+                    state.imgNaturalWidth, 
+                    state.imgNaturalHeight
+                );
+                ctx.restore();
+
+                // Draw Frame
+                ctx.drawImage(frameImg, 0, 0, exportW, exportH);
+                
+                // Viral Watermark
+                ctx.save();
+                ctx.font = `bold ${exportW * 0.025}px Outfit, sans-serif`;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+                ctx.shadowBlur = 15;
+                ctx.textAlign = 'right';
+                ctx.fillText('2026 🎓', exportW - (exportW * 0.03), exportH - (exportH * 0.03));
+                ctx.restore();
+
+                // Download using Blob for highest quality with fallback handling
+                const blob = await new Promise((resolve, reject) => {
+                    if (canvas.toBlob) {
+                        canvas.toBlob((blobResult) => {
+                            if (!blobResult) {
+                                reject(new Error('Canvas export blob creation failed'));
+                                return;
+                            }
+                            resolve(blobResult);
+                        }, format, 0.95);
+                    } else {
+                        try {
+                            const dataUrl = canvas.toDataURL(format, 0.95);
+                            const binary = atob(dataUrl.split(',')[1]);
+                            const array = new Uint8Array(binary.length);
+                            for (let i = 0; i < binary.length; i += 1) {
+                                array[i] = binary.charCodeAt(i);
+                            }
+                            resolve(new Blob([array], { type: format }));
+                        } catch (err) {
+                            reject(err);
+                        }
+                    }
+                });
+
+                const link = document.createElement('a');
+                link.download = `Framed_Masterpiece.${ext}`;
+                link.href = URL.createObjectURL(blob);
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
+                // Setup before/after
+                const dataUrl = canvas.toDataURL(format, 1.0);
+                els.imgAfter.src = dataUrl;
+                els.imgBefore.src = els.userImg.src;
+
+                showToast('Export successful!', 'success');
+
+            } catch (e) {
+                console.error("Export failed", e);
+                showToast('Export failed. Check console.', 'error');
+            } finally {
+                els.btnExport.disabled = false;
+                hideLoader();
+            }
+        }
+
+        /**
+         * Before vs After Slider
+         */
+        function setupCompareSlider() {
+            let isSliding = false;
+            
+            els.btnBeforeAfter.addEventListener('click', () => {
+                // Generate a quick low-res preview if not exported recently
+                if (!els.imgAfter.src) {
+                    showToast('Export an image first to enable comparison!', 'warning');
+                    return;
+                }
+                els.compSlider.classList.add('active');
+                els.compBefore.style.clipPath = `inset(0 50% 0 0)`;
+                els.sliderHandle.style.left = `50%`;
+            });
+            
+            els.btnCloseComp.addEventListener('click', () => {
+                els.compSlider.classList.remove('active');
+            });
+            
+            function moveSlider(clientX) {
+                const rect = els.compSlider.getBoundingClientRect();
+                let x = clientX - rect.left;
+                let percent = (x / rect.width) * 100;
+                percent = Math.max(0, Math.min(100, percent));
+                
+                els.compBefore.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+                els.sliderHandle.style.left = `${percent}%`;
+            }
+
+            els.sliderHandle.addEventListener('mousedown', () => isSliding = true);
+            window.addEventListener('mouseup', () => isSliding = false);
+            window.addEventListener('mousemove', (e) => {
+                if (isSliding) moveSlider(e.clientX);
+            });
+            
+            els.sliderHandle.addEventListener('touchstart', () => isSliding = true, {passive: true});
+            window.addEventListener('touchend', () => isSliding = false);
+            window.addEventListener('touchmove', (e) => {
+                if (isSliding) moveSlider(e.touches[0].clientX);
+            }, {passive: true});
+        }
+
+        /**
+         * UI Utilities
+         */
+        function showLoader(text) {
+            els.loaderText.textContent = text;
+            els.loader.classList.remove('hidden');
+        }
+        function hideLoader() {
+            els.loader.classList.add('hidden');
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = `glass-panel px-6 py-3 rounded-full flex items-center gap-3 toast-enter shadow-2xl`;
+            
+            let icon = '';
+            if(type === 'success') icon = `<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+            else if(type === 'error') icon = `<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+            else if(type === 'warning') icon = `<svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            
+            el.innerHTML = `${icon}<span class="text-sm font-medium text-white">${msg}</span>`;
+            
+            container.appendChild(el);
+            
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translate(-50%, -20px)';
+                el.style.transition = 'all 0.3s ease';
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        }
+
+        function scrollDemoGallery(direction) {
+            if (!els.demoGallery) return;
+            const distance = els.demoGallery.clientWidth * 0.7;
+            els.demoGallery.scrollBy({ left: distance * direction, behavior: 'smooth' });
+        }
+
+        // Run
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
